@@ -70,7 +70,7 @@ args = vars(ap.parse_args())
 fileOut="params-"+str(args["clusters"])+".txt"
 fp=open(fileOut,"w")
 for x in range(720):
-	imageLoc=str(x+10)+".png"
+	imageLoc=str(x+1)+".png"
 	print imageLoc
 	image = cv2.imread(imageLoc)
 	image2 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
