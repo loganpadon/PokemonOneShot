@@ -1,8 +1,10 @@
 # import the necessary packages
 from sklearn.cluster import KMeans
+import math
 import skimage
 import matplotlib.pyplot as plt
 import argparse
+import numpy as np
 import cv2
 
 def mean_image(image,clt):
@@ -25,9 +27,24 @@ def link_colors(hist, centroids):
 		c=skimage.color.lab2rgb([[color]])*255
 		output=output+"\t"+str(c[0][0])+" "+str(percent)
 	return output
-# import the necessary packages
-import numpy as np
-import cv2
+def getNormalization(centroids):
+	colors=[]
+	for color in centroids:
+		c=skimage.color.lab2rgb([[color]])*255
+		colors.append(c[0][0])
+	z=0
+	for r in range(256):
+		for g in range(256):
+			for b in range(256):
+				dist=3*256
+				for color in colors:
+					cdist=math.sqrt(math.pow(color[0]-r,2)+math.pow(color[1]-g,2)+math.pow(color[2]-b,2))
+					if cdist<dist:
+						dist=cdist
+				if dist>0:
+					z+=1/dist
+	return z
+					
  
 def centroid_histogram(clt):
 	# grab the number of different clusters and create a histogram
@@ -53,7 +70,7 @@ args = vars(ap.parse_args())
 fileOut="params-"+str(args["clusters"])+".txt"
 fp=open(fileOut,"w")
 for x in range(720):
-	imageLoc=str(x+1)+".png"
+	imageLoc=str(x+10)+".png"
 	print imageLoc
 	image = cv2.imread(imageLoc)
 	image2 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -71,7 +88,9 @@ for x in range(720):
 	clt.fit(imagedata)
 	hist = centroid_histogram(clt)
 	data = link_colors(hist, clt.cluster_centers_)
-	fp.write(str(x+1)+data+"\n")
+	z=getNormalization(clt.cluster_centers_)
+	print z
+	fp.write(str(x+10)+"\t"+str(z)+data+"\n")
 	print data
 
 
